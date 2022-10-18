@@ -30,6 +30,29 @@ services:
     environment:
       TZ: ${TZ}
 
+  php:
+    build:
+      context: ./services/php
+      args:
+        PHP_VERSION: ${PHP_VERSION}
+        ALPINE_VERSION: ${ALPINE_VERSION}
+        COMPOSER_VERSION: ${COMPOSER_VERSION}
+        TZ: ${TZ}
+    container_name: ${PROJECT_NAME}_php
+    ports:
+      - ${PHP_HOST_PORT}:9501
+    volumes:
+      - ${PHP_CONF_FILE}:/etc/php7/php.ini:ro
+      - ${WWW_DIR}:/data/project/:rw
+    restart: always
+    depends_on:
+      - mysql
+      - redis
+    networks:
+      - network0
+    environment:
+      TZ: ${TZ}
+
 networks:
   network0:
     name: ${PROJECT_NAME}_network
