@@ -53,6 +53,24 @@ services:
     environment:
       TZ: ${TZ}
 
+  rabbitmq:
+    image: rabbitmq:${RABBITMQ_VERSION}
+    container_name: ${PROJECT_NAME}_rabbitmq
+    ports:
+      - ${RABBITMQ_PORT}:5672
+      - ${RABBITMQ_ADMIN_PORT}:15672
+    environment:
+      RABBITMQ_DEFAULT_VHOST: ${RABBITMQ_VHOST}
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
+      TZ: "$TZ"
+    volumes:
+      - ${RABBITMQ_CONF_DIR}:/etc/rabbitmq/conf.d/:rw
+      - ${RABBITMQ_DATA_DIR}:/var/lib/rabbitmq/:rw
+    restart: always
+    networks:
+      - network0
+
 networks:
   network0:
     name: ${PROJECT_NAME}_network
