@@ -2,7 +2,7 @@ version: "3"
 services:
   mysql:
     image: mysql:${MYSQL_VERSION}
-    container_name: ${PROJECT_NAME}_mysql
+    container_name: ${MYSQL_CONTAINER_NAME}
     ports:
       - ${MYSQL_HOST_PORT}:3306
     volumes:
@@ -10,14 +10,14 @@ services:
       - ${MYSQL_DATA_DIR}:/var/lib/mysql/:rw
     restart: always
     networks:
-      - network0
+      - local
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       TZ: ${TZ}
 
   redis:
     image: redis:${REDIS_VERSION}
-    container_name: ${PROJECT_NAME}_redis
+    container_name: ${REDIS_CONTAINER_NAME}
     ports:
       - ${REDIS_HOST_PORT}:6379
     volumes:
@@ -25,7 +25,7 @@ services:
       - ${REDIS_DATA_DIR}:/data/:rw
     restart: always
     networks:
-      - network0
+      - local
     entrypoint: [ "redis-server", "/etc/redis.conf" ]
     environment:
       TZ: ${TZ}
@@ -35,32 +35,32 @@ services:
       context: ./services/php
       args:
         PHP_VERSION: ${PHP_VERSION}
-        ALPINE_VERSION: ${ALPINE_VERSION}
-        COMPOSER_VERSION: ${COMPOSER_VERSION}
+        ALPINE_VERSION: ${PHP_ALPINE_VERSION}
+        COMPOSER_VERSION: ${PHP_COMPOSER_VERSION}
         TZ: ${TZ}
-    container_name: ${PROJECT_NAME}_php
+    container_name: ${PHP_CONTAINER_NAME}
     ports:
       - ${PHP_HOST_PORT}:9501
     volumes:
       - ${PHP_CONF_FILE}:/etc/php7/php.ini:ro
-      - ${WWW_DIR}:/data/project/:rw
+      - ${PHP_WWW_DIR}:/data/project/:rw
     restart: always
     depends_on:
       - mysql
       - redis
     networks:
-      - network0
+      - local
+    entrypoint: [ "tail", "-f", "/dev/null" ]
     environment:
       TZ: ${TZ}
 
   rabbitmq:
     image: rabbitmq:${RABBITMQ_VERSION}
-    container_name: ${PROJECT_NAME}_rabbitmq
+    container_name: ${RABBITMQ_CONTAINER_NAME}
     ports:
       - ${RABBITMQ_PORT}:5672
-      - ${RABBITMQ_ADMIN_PORT}:15672
+      - ${RABBITMQ_MANAGEMENT_PORT}:15672
     environment:
-      RABBITMQ_DEFAULT_VHOST: ${RABBITMQ_VHOST}
       RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
       TZ: "$TZ"
@@ -69,9 +69,9 @@ services:
       - ${RABBITMQ_DATA_DIR}:/var/lib/rabbitmq/:rw
     restart: always
     networks:
-      - network0
+      - local
 
 networks:
-  network0:
-    name: ${PROJECT_NAME}_network
+  local:
+    name: local
     driver: bridge

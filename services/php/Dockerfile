@@ -37,5 +37,3 @@ RUN set -ex \
 WORKDIR /data/project
 
 EXPOSE 9501
-
-CMD ["tail", "-f", "/dev/null"]
