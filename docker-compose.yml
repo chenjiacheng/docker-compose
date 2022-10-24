@@ -45,9 +45,6 @@ services:
       - ${PHP_CONF_FILE}:/etc/php7/php.ini:ro
       - ${PHP_WWW_DIR}:/data/project/:rw
     restart: always
-    depends_on:
-      - mysql
-      - redis
     networks:
       - local
     entrypoint: [ "tail", "-f", "/dev/null" ]
@@ -70,6 +67,21 @@ services:
     restart: always
     networks:
       - local
+
+  go:
+    build:
+      context: ./services/go
+      args:
+        GO_VERSION: ${GO_VERSION}
+    container_name: ${GO_CONTAINER_NAME}
+    ports:
+      - ${GO_HOST_PORT}:8080
+    volumes:
+      - ${GO_APP_DIR}:/go/:rw
+    restart: always
+    networks:
+      - local
+    entrypoint: [ "tail", "-f", "/dev/null" ]
 
 networks:
   local:
